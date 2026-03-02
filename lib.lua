@@ -521,51 +521,70 @@ do
 		self._y = y + 18
 
 		local Row = newObject("Frame", {
-			BackgroundColor3  = Color3.fromRGB(23, 23, 23);
 			BackgroundTransparency = 1;
-			BorderSizePixel   = 0;
-			Position          = UDim2.new(0, 0, 0, y);
-			Size              = UDim2.new(1, 0, 0, 18);
-			Parent            = inside2;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(0, 0, 0, y);
+			Size                   = UDim2.new(1, 0, 0, 18);
+			Parent                 = inside2;
 		})
+
+		local Indicator = newObject("Frame", {
+			BackgroundColor3 = Color3.fromRGB(66, 66, 66);
+			BorderSizePixel  = 0;
+			Position         = UDim2.new(0, 8, 0.5, -4);
+			Size             = UDim2.new(0, 8, 0, 8);
+			Parent           = Row;
+		})
+
+		local labelWidth = info.color and -46 or (info.keybind and -46 or -24)
 
 		local Label = newObject("TextLabel", {
 			BackgroundTransparency = 1;
 			BorderSizePixel        = 0;
-			Position               = UDim2.new(0, 12, 0, 0);
-			Size                   = UDim2.new(1, -28, 1, 0);
+			Position               = UDim2.new(0, 22, 0, 0);
+			Size                   = UDim2.new(1, labelWidth, 1, 0);
 			Font                   = Enum.Font.SourceSans;
 			Text                   = info.name;
-			TextColor3             = Color3.fromRGB(140, 140, 140);
+			TextColor3             = Color3.fromRGB(120, 120, 120);
 			TextSize               = 13;
 			TextXAlignment         = Enum.TextXAlignment.Left;
 			Parent                 = Row;
 		})
 
-		local Box = newObject("Frame", {
-			BackgroundColor3 = Color3.fromRGB(60, 60, 60);
-			BorderSizePixel  = 0;
-			Position         = UDim2.new(1, -18, 0.5, -5);
-			Size             = UDim2.new(0, 10, 0, 10);
-			Parent           = Row;
-		})
+		if info.color then
+			newObject("Frame", {
+				BackgroundColor3 = info.color;
+				BorderSizePixel  = 0;
+				Position         = UDim2.new(1, -22, 0.5, -5);
+				Size             = UDim2.new(0, 16, 0, 10);
+				Parent           = Row;
+			})
+		end
 
-		local Fill = newObject("Frame", {
-			BackgroundColor3 = Color3.fromRGB(255, 255, 255);
-			BorderSizePixel  = 0;
-			Position         = UDim2.new(0, 1, 0, 1);
-			Size             = UDim2.new(1, -2, 1, -2);
-			Visible          = false;
-			Parent           = Box;
-		})
+		if info.keybind then
+			newObject("TextLabel", {
+				BackgroundTransparency = 1;
+				BorderSizePixel        = 0;
+				Position               = UDim2.new(1, -44, 0, 0);
+				Size                   = UDim2.new(0, 40, 1, 0);
+				Font                   = Enum.Font.SourceSans;
+				Text                   = "[" .. info.keybind .. "]";
+				TextColor3             = Color3.fromRGB(80, 80, 80);
+				TextSize               = 12;
+				TextXAlignment         = Enum.TextXAlignment.Right;
+				Parent                 = Row;
+			})
+		end
 
 		local enabled = info.default or false
 
 		local function refresh()
-			Fill.Visible       = enabled
-			Label.TextColor3   = enabled
-				and Color3.fromRGB(255, 255, 255)
-				or  Color3.fromRGB(140, 140, 140)
+			Indicator.BackgroundColor3 = enabled
+				and Color3.fromRGB(200, 160, 32)
+				or  Color3.fromRGB(66, 66, 66)
+			Label.TextColor3 = enabled
+				and Color3.fromRGB(210, 210, 210)
+				or  Color3.fromRGB(120, 120, 120)
 		end
 
 		refresh()
@@ -580,25 +599,253 @@ do
 		end)
 
 		Row.MouseEnter:Connect(function()
-			if not enabled then
-				Label.TextColor3 = Color3.fromRGB(198, 198, 198)
-			end
+			if not enabled then Label.TextColor3 = Color3.fromRGB(170, 170, 170) end
 		end)
 
 		Row.MouseLeave:Connect(function()
-			if not enabled then
-				Label.TextColor3 = Color3.fromRGB(140, 140, 140)
+			if not enabled then Label.TextColor3 = Color3.fromRGB(120, 120, 120) end
+		end)
+
+		return {
+			set = function(val) enabled = val; refresh() end,
+			get = function() return enabled end,
+		}
+	end
+
+	function section:newDropdown(info)
+		local inside2 = self.inside2
+		local y = self._y
+		self._y = y + 36
+
+		newObject("TextLabel", {
+			BackgroundTransparency = 1;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(0, 8, 0, y);
+			Size                   = UDim2.new(1, -8, 0, 16);
+			Font                   = Enum.Font.SourceSans;
+			Text                   = info.name;
+			TextColor3             = Color3.fromRGB(150, 150, 150);
+			TextSize               = 13;
+			TextXAlignment         = Enum.TextXAlignment.Left;
+			Parent                 = inside2;
+		})
+
+		local Box = newObject("Frame", {
+			BackgroundColor3 = Color3.fromRGB(30, 30, 30);
+			BorderColor3     = Color3.fromRGB(50, 50, 50);
+			BorderSizePixel  = 1;
+			Position         = UDim2.new(0, 8, 0, y + 17);
+			Size             = UDim2.new(1, -16, 0, 18);
+			Parent           = inside2;
+		})
+
+		local Selected = newObject("TextLabel", {
+			BackgroundTransparency = 1;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(0, 6, 0, 0);
+			Size                   = UDim2.new(1, -20, 1, 0);
+			Font                   = Enum.Font.SourceSans;
+			Text                   = info.options and info.options[info.default or 1] or "";
+			TextColor3             = Color3.fromRGB(180, 180, 180);
+			TextSize               = 12;
+			TextXAlignment         = Enum.TextXAlignment.Left;
+			Parent                 = Box;
+		})
+
+		newObject("TextLabel", {
+			BackgroundTransparency = 1;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(1, -16, 0, 0);
+			Size                   = UDim2.new(0, 12, 1, 0);
+			Font                   = Enum.Font.SourceSans;
+			Text                   = "▼";
+			TextColor3             = Color3.fromRGB(120, 120, 120);
+			TextSize               = 10;
+			TextXAlignment         = Enum.TextXAlignment.Center;
+			Parent                 = Box;
+		})
+
+		local current = info.default or 1
+		local open    = false
+		local dropFrame = nil
+
+		local function closeDropdown()
+			if dropFrame then
+				dropFrame:Destroy()
+				dropFrame = nil
+			end
+			open = false
+		end
+
+		local function openDropdown()
+			local opts = info.options or {}
+			local h    = #opts * 18
+			self._y    = self._y + h
+			dropFrame  = newObject("Frame", {
+				BackgroundColor3 = Color3.fromRGB(30, 30, 30);
+				BorderColor3     = Color3.fromRGB(50, 50, 50);
+				BorderSizePixel  = 1;
+				Position         = UDim2.new(0, 8, 0, y + 35);
+				Size             = UDim2.new(1, -16, 0, h);
+				ZIndex           = 10;
+				Parent           = inside2;
+			})
+
+			for i, opt in ipairs(opts) do
+				local item = newObject("TextLabel", {
+					BackgroundTransparency = 1;
+					BorderSizePixel        = 0;
+					Position               = UDim2.new(0, 0, 0, (i - 1) * 18);
+					Size                   = UDim2.new(1, 0, 0, 18);
+					Font                   = Enum.Font.SourceSans;
+					Text                   = opt;
+					TextColor3             = i == current
+						and Color3.fromRGB(210, 210, 210)
+						or  Color3.fromRGB(150, 150, 150);
+					TextSize               = 12;
+					TextXAlignment         = Enum.TextXAlignment.Left;
+					ZIndex                 = 11;
+					Parent                 = dropFrame;
+				})
+				local itemBg = newObject("Frame", {
+					BackgroundColor3       = Color3.fromRGB(0, 0, 0);
+					BackgroundTransparency = 1;
+					BorderSizePixel        = 0;
+					Position               = UDim2.new(0, 0, 0, (i - 1) * 18);
+					Size                   = UDim2.new(1, 0, 0, 18);
+					ZIndex                 = 10;
+					Parent                 = dropFrame;
+				})
+				itemBg.MouseEnter:Connect(function()
+					itemBg.BackgroundTransparency = 0.7
+				end)
+				itemBg.MouseLeave:Connect(function()
+					itemBg.BackgroundTransparency = 1
+				end)
+				itemBg.InputBegan:Connect(function(input, gpe)
+					if gpe then return end
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						current = i
+						Selected.Text = opt
+						closeDropdown()
+						self._y = self._y - h
+						if info.callback then info.callback(opt, i) end
+					end
+				end)
+			end
+		end
+
+		Box.InputBegan:Connect(function(input, gpe)
+			if gpe then return end
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if open then closeDropdown(); self._y = self._y - (#(info.options or {}) * 18)
+				else openDropdown() end
+				open = not open
 			end
 		end)
 
 		return {
 			set = function(val)
-				enabled = val
-				refresh()
+				for i, v in ipairs(info.options or {}) do
+					if v == val then current = i; Selected.Text = val; break end
+				end
 			end,
-			get = function()
-				return enabled
+			get = function() return info.options and info.options[current] or nil end,
+		}
+	end
+
+	function section:newSlider(info)
+		local inside2 = self.inside2
+		local y = self._y
+		self._y = y + 30
+
+		newObject("TextLabel", {
+			BackgroundTransparency = 1;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(0, 8, 0, y);
+			Size                   = UDim2.new(1, -8, 0, 14);
+			Font                   = Enum.Font.SourceSans;
+			Text                   = info.name;
+			TextColor3             = Color3.fromRGB(150, 150, 150);
+			TextSize               = 13;
+			TextXAlignment         = Enum.TextXAlignment.Left;
+			Parent                 = inside2;
+		})
+
+		local Track = newObject("Frame", {
+			BackgroundColor3 = Color3.fromRGB(42, 42, 42);
+			BorderSizePixel  = 0;
+			Position         = UDim2.new(0, 8, 0, y + 16);
+			Size             = UDim2.new(1, -16, 0, 10);
+			Parent           = inside2;
+		})
+
+		local Fill = newObject("Frame", {
+			BackgroundColor3 = Color3.fromRGB(100, 180, 40);
+			BorderSizePixel  = 0;
+			Size             = UDim2.new(0, 0, 1, 0);
+			Parent           = Track;
+		})
+
+		local ValLabel = newObject("TextLabel", {
+			BackgroundTransparency = 1;
+			BorderSizePixel        = 0;
+			Position               = UDim2.new(0, 0, 0, 0);
+			Size                   = UDim2.new(1, -2, 1, 0);
+			Font                   = Enum.Font.SourceSansBold;
+			Text                   = "";
+			TextColor3             = Color3.fromRGB(220, 220, 220);
+			TextSize               = 10;
+			TextXAlignment         = Enum.TextXAlignment.Right;
+			ZIndex                 = 2;
+			Parent                 = Track;
+		})
+
+		local min  = info.min  or 0
+		local max  = info.max  or 100
+		local step = info.step or 1
+		local val  = math.clamp(info.default or min, min, max)
+
+		local function setVal(v)
+			v = math.clamp(math.round(v / step) * step, min, max)
+			val = v
+			local pct = (v - min) / (max - min)
+			Fill.Size = UDim2.new(pct, 0, 1, 0)
+			local suffix = info.suffix or ""
+			ValLabel.Text = tostring(v) .. suffix
+			if info.callback then info.callback(v) end
+		end
+
+		setVal(val)
+
+		local dragging = false
+
+		Track.InputBegan:Connect(function(input, gpe)
+			if gpe then return end
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
 			end
+		end)
+
+		Track.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = false
+			end
+		end)
+
+		uis.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMove then
+				local abs   = Track.AbsolutePosition
+				local size  = Track.AbsoluteSize
+				local mouse = uis:GetMouseLocation()
+				local pct   = math.clamp((mouse.X - abs.X) / size.X, 0, 1)
+				setVal(min + pct * (max - min))
+			end
+		end)
+
+		return {
+			set = function(v) setVal(v) end,
+			get = function() return val end,
 		}
 	end
 
